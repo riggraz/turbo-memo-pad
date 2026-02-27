@@ -44,3 +44,6 @@ app-example
 
 # Claude
 .claude/
+
+# VSCode
+.vscode/
