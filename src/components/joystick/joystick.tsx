@@ -127,11 +127,18 @@ export function Joystick() {
 
   const innerStyle = useAnimatedStyle(() => {
     const clamp = (v: number) => Math.min(Math.max(v, -MAX_INNER_MOVE), MAX_INNER_MOVE);
+    const dx = clamp(translationX.value * 0.3);
+    const dy = clamp(translationY.value * 0.3);
     return {
       transform: [
-        { translateX: clamp(translationX.value * 0.3) },
-        { translateY: clamp(translationY.value * 0.3) },
+        { translateX: dx },
+        { translateY: dy },
+        { scale: withSpring(isOpen.value ? 1.15 : 1, springConfig) },
       ],
+      shadowOffset: { width: dx * 0.4, height: dy * 0.4 },
+      shadowOpacity: withSpring(isOpen.value ? 0.45 : 0, springConfig),
+      shadowRadius: withSpring(isOpen.value ? 12 : 4, springConfig),
+      elevation: withSpring(isOpen.value ? 12 : 3, springConfig),
     };
   });
 
@@ -156,7 +163,7 @@ export function Joystick() {
             <Animated.View
               style={[
                 styles.inner,
-                { top: INNER_BASE, left: INNER_BASE, backgroundColor: theme.text },
+                { top: INNER_BASE, left: INNER_BASE, backgroundColor: theme.text, opacity: 0.7 },
                 innerStyle,
               ]}
             />
@@ -193,11 +200,7 @@ const styles = StyleSheet.create({
     width: INNER_SIZE,
     height: INNER_SIZE,
     borderRadius: INNER_SIZE / 2,
-    opacity: 0.85,
-    shadowColor: '#fff',
-    shadowOpacity: 0.6,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowColor: '#000',
   },
   connectorLine: {
     position: 'absolute',

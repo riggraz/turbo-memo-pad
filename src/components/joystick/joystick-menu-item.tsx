@@ -29,9 +29,10 @@ type Props = {
 };
 
 const springConfig = { damping: 22, stiffness: 500, mass: 0.5 };
+const openSpring = { damping: 16, stiffness: 500, mass: 0.5 };
 
 function getLabelPosition(_id: Direction, _itemSize: number): object {
-  return { top: -20, left: '50%', transform: [{ translateX: -24 }], width: 48, textAlign: 'center' as const };
+  return { top: -24, left: '50%', transform: [{ translateX: -36 }], width: 72, textAlign: 'center' as const };
 }
 
 export function JoystickMenuItem({ dir, itemBase, itemSize, isOpen, activeDirection }: Props) {
@@ -43,16 +44,16 @@ export function JoystickMenuItem({ dir, itemBase, itemSize, isOpen, activeDirect
     return {
       opacity: withSpring(open ? 1 : 0, springConfig),
       transform: [
-        { translateX: withSpring(open ? dir.offsetX : 0, springConfig) },
-        { translateY: withSpring(open ? dir.offsetY : 0, springConfig) },
+        { translateX: withSpring(open ? dir.offsetX : 0, open ? openSpring : springConfig) },
+        { translateY: withSpring(open ? dir.offsetY : 0, open ? openSpring : springConfig) },
         { scale: withSpring(isActive ? 1.5 : open ? 1 : 0.1, springConfig) },
       ],
       backgroundColor: isActive ? dir.color : theme.backgroundElement,
       borderColor: isActive ? dir.color : theme.backgroundSelected,
-      shadowColor: isActive ? dir.color : '#000',
-      shadowOpacity: isActive ? 0.7 : 0.25,
-      shadowRadius: isActive ? 28 : 8,
-      elevation: isActive ? 16 : 5,
+      shadowColor: dir.color,
+      shadowOpacity: isActive ? 1 : 0,
+      shadowRadius: isActive ? 128 : 0,
+      elevation: isActive ? 20 : 0,
     };
   });
 
@@ -89,10 +90,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
   },
   emoji: {
-    fontSize: 22,
+    fontSize: 24,
   },
   label: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
