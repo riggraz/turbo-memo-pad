@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   },
   joystickArea: {
     position: 'absolute',
-    bottom: BottomTabInset,
+    bottom: BottomTabInset + Spacing.four,
     left: 0,
     right: 0,
     alignItems: 'center',
