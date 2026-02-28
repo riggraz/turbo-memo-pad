@@ -15,9 +15,9 @@ expo start --web
 expo lint
 
 # Production builds (requires EAS CLI)
-eas build --profile development
-eas build --profile preview
-eas build --profile production
+eas build --profile development --platform android
+eas build --profile preview --platform android
+eas build --profile production --platform android
 ```
 
 No test runner is configured.
@@ -42,10 +42,18 @@ No test runner is configured.
 
 **React 19 + React Compiler** experiment is enabled (`app.json` → `experiments.reactCompiler: true`). Avoid manual memoization patterns that conflict with the compiler.
 
+**Database**: `expo-sqlite` with a custom repository layer under `src/db/`:
+- `schema.ts` — DDL + `SCHEMA_VERSION` (increment to trigger migrations)
+- `database.ts` — `getDatabase()` singleton; migrations via `PRAGMA user_version`
+- `index.ts` — public re-exports for the whole `db/` module
+
+Note fields: `id`, `type` (`text` | `audio` | `picture`), `text`, `media_uri`, `is_pinned`, `created_at`, `updated_at`. Timestamps are Unix ms integers.
+
 ## Key Libraries
 
 - `expo-symbols` — SF Symbols (iOS) / Material Icons (Android)
 - `expo-glass-effect` — glassmorphism
 - `expo-image` — optimized images
+- `expo-sqlite` — local SQLite database
 - `react-native-reanimated` v4 + `react-native-worklets`
 - `expo-web-browser` — in-app browser for external links (`ExternalLink` component)
