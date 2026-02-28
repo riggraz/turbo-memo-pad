@@ -1,12 +1,16 @@
+import * as Haptics from 'expo-haptics';
 import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   DerivedValue,
+  useAnimatedReaction,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
+
+import { scheduleOnRN } from 'react-native-worklets';
 
 import { useTheme } from '@/hooks/use-theme';
 
@@ -82,6 +86,15 @@ export function Joystick() {
     if (!isOpen.value) return null;
     return getActiveDirection(translationX.value, translationY.value);
   });
+
+  useAnimatedReaction(
+    () => activeDirection.value,
+    (current, previous) => {
+      if (current !== null && current !== previous) {
+        scheduleOnRN(Haptics.impactAsync, Haptics.ImpactFeedbackStyle.Light);
+      }
+    }
+  );
 
   const pan = Gesture.Pan()
     .activateAfterLongPress(LONG_PRESS_DURATION)
