@@ -75,12 +75,19 @@ function ConnectorLine({ dir, activeDirection }: ConnectorLineProps) {
   );
 }
 
-export function Joystick() {
+interface JoystickProps {
+  onTextAction?: () => void;
+  onTextActionPreview?: () => void;
+  onTextActionCancel?: () => void;
+}
+
+export function Joystick({ onTextAction, onTextActionPreview, onTextActionCancel }: JoystickProps) {
   const theme = useTheme();
 
   const isOpen = useSharedValue(false);
   const translationX = useSharedValue(0);
   const translationY = useSharedValue(0);
+  const textPreviewActive = useSharedValue(false);
 
   const activeDirection = useDerivedValue<Direction | null>(() => {
     if (!isOpen.value) return null;
@@ -92,6 +99,14 @@ export function Joystick() {
     (current, previous) => {
       if (current !== null && current !== previous) {
         scheduleOnRN(Haptics.impactAsync, Haptics.ImpactFeedbackStyle.Light);
+      }
+      if (current === 'up' && !textPreviewActive.value && onTextActionPreview) {
+        textPreviewActive.value = true;
+        scheduleOnRN(onTextActionPreview);
+      }
+      if (previous === 'up' && current !== 'up' && isOpen.value && textPreviewActive.value && onTextActionCancel) {
+        textPreviewActive.value = false;
+        scheduleOnRN(onTextActionCancel);
       }
     }
   );
@@ -111,10 +126,17 @@ export function Joystick() {
     })
     .onFinalize(() => {
       'worklet';
-      // Action would be triggered here based on activeDirection.value
+      const dir = activeDirection.value;
+      const hadPreview = textPreviewActive.value;
+      textPreviewActive.value = false;
       isOpen.value = false;
       translationX.value = withSpring(0, returnSpring);
       translationY.value = withSpring(0, returnSpring);
+      if (dir === 'up' && onTextAction) {
+        scheduleOnRN(onTextAction);
+      } else if (hadPreview && onTextActionCancel) {
+        scheduleOnRN(onTextActionCancel);
+      }
     });
 
   const outerStyle = useAnimatedStyle(() => ({
