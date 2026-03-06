@@ -39,6 +39,7 @@ function CreateNoteOverlay({ onDismiss, onCreated }, ref) {
   useEffect(() => {
     backdropOpacity.value = withTiming(1, { duration: 100 });
     translateX.value = withSpring(0, { damping: 16, stiffness: 300, mass: 0.5 });
+    scale.value = withSpring(1.05, { damping: 16, stiffness: 300, mass: 0.5 });
   }, []);
 
   function handleDismiss() {
@@ -68,7 +69,7 @@ function CreateNoteOverlay({ onDismiss, onCreated }, ref) {
   useImperativeHandle(ref, () => ({
     dismiss: handleDismiss,
     focus: () => {
-      scale.value = withSpring(0.95, { damping: 16, stiffness: 500, mass: 0.5 });
+      scale.value = withSpring(1, { damping: 16, stiffness: 500, mass: 0.5 });
       inputRef.current?.focus();
     },
   }));

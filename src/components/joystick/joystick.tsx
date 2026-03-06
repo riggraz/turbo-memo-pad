@@ -76,18 +76,18 @@ function ConnectorLine({ dir, activeDirection }: ConnectorLineProps) {
 }
 
 interface JoystickProps {
-  onTextAction?: () => void;
-  onTextActionPreview?: () => void;
-  onTextActionCancel?: () => void;
+  onAction?: (direction: Direction) => void;
+  onActionPreview?: (direction: Direction) => void;
+  onActionCancel?: (direction: Direction) => void;
 }
 
-export function Joystick({ onTextAction, onTextActionPreview, onTextActionCancel }: JoystickProps) {
+export function Joystick({ onAction, onActionPreview, onActionCancel }: JoystickProps) {
   const theme = useTheme();
 
   const isOpen = useSharedValue(false);
   const translationX = useSharedValue(0);
   const translationY = useSharedValue(0);
-  const textPreviewActive = useSharedValue(false);
+  const previewActiveDirection = useSharedValue<Direction | null>(null);
 
   const activeDirection = useDerivedValue<Direction | null>(() => {
     if (!isOpen.value) return null;
@@ -100,13 +100,16 @@ export function Joystick({ onTextAction, onTextActionPreview, onTextActionCancel
       if (current !== null && current !== previous) {
         scheduleOnRN(Haptics.impactAsync, Haptics.ImpactFeedbackStyle.Light);
       }
-      if (current === 'up' && !textPreviewActive.value && onTextActionPreview) {
-        textPreviewActive.value = true;
-        scheduleOnRN(onTextActionPreview);
+      if (previous !== null && current !== previous && isOpen.value) {
+        const prev = previewActiveDirection.value;
+        if (prev !== null) {
+          previewActiveDirection.value = null;
+          if (onActionCancel) scheduleOnRN(onActionCancel, prev);
+        }
       }
-      if (previous === 'up' && current !== 'up' && isOpen.value && textPreviewActive.value && onTextActionCancel) {
-        textPreviewActive.value = false;
-        scheduleOnRN(onTextActionCancel);
+      if (current !== null && previewActiveDirection.value === null) {
+        previewActiveDirection.value = current;
+        if (onActionPreview) scheduleOnRN(onActionPreview, current);
       }
     }
   );
@@ -127,15 +130,15 @@ export function Joystick({ onTextAction, onTextActionPreview, onTextActionCancel
     .onFinalize(() => {
       'worklet';
       const dir = activeDirection.value;
-      const hadPreview = textPreviewActive.value;
-      textPreviewActive.value = false;
+      const previewing = previewActiveDirection.value;
+      previewActiveDirection.value = null;
       isOpen.value = false;
       translationX.value = withSpring(0, returnSpring);
       translationY.value = withSpring(0, returnSpring);
-      if (dir === 'up' && onTextAction) {
-        scheduleOnRN(onTextAction);
-      } else if (hadPreview && onTextActionCancel) {
-        scheduleOnRN(onTextActionCancel);
+      if (dir !== null && onAction) {
+        scheduleOnRN(onAction, dir);
+      } else if (previewing !== null && onActionCancel) {
+        scheduleOnRN(onActionCancel, previewing);
       }
     });
 

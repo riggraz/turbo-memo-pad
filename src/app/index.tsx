@@ -27,9 +27,9 @@ export default function HomeScreen() {
 
       <View style={styles.joystickArea}>
         <Joystick
-          onTextActionPreview={() => setShowCreate(true)}
-          onTextAction={() => overlayRef.current?.focus()}
-          onTextActionCancel={() => overlayRef.current?.dismiss()}
+          onActionPreview={(dir) => { if (dir === 'up') setShowCreate(true); }}
+          onAction={(dir) => { if (dir === 'up') overlayRef.current?.focus(); }}
+          onActionCancel={(dir) => { if (dir === 'up') overlayRef.current?.dismiss(); }}
         />
       </View>
 
