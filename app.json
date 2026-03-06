@@ -36,7 +36,10 @@
           }
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      ["expo-camera", {
+        "cameraPermission": "Allow Turbo Memo Pad to access your camera to take picture notes."
+      }]
     ],
     "experiments": {
       "typedRoutes": true,

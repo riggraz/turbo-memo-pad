@@ -3,7 +3,8 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Joystick } from '@/components/joystick/joystick';
-import { CreateNoteOverlay, type CreateNoteOverlayHandle } from '@/components/notes/create-note-overlay';
+import { CreateNoteOverlay, type CreateNoteOverlayHandle } from '@/components/notes/new-note-text-overlay';
+import { CreatePictureOverlay, type CreatePictureOverlayHandle } from '@/components/notes/new-note-picture-overlay';
 import { NotesList } from '@/components/notes/notes-list';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -14,6 +15,8 @@ export default function HomeScreen() {
   const { notes, loading, refresh } = useNotes();
   const [showCreate, setShowCreate] = useState(false);
   const overlayRef = useRef<CreateNoteOverlayHandle>(null);
+  const [showPicture, setShowPicture] = useState(false);
+  const pictureRef = useRef<CreatePictureOverlayHandle>(null);
 
   return (
     <ThemedView style={styles.container}>
@@ -27,9 +30,18 @@ export default function HomeScreen() {
 
       <View style={styles.joystickArea}>
         <Joystick
-          onActionPreview={(dir) => { if (dir === 'up') setShowCreate(true); }}
-          onAction={(dir) => { if (dir === 'up') overlayRef.current?.focus(); }}
-          onActionCancel={(dir) => { if (dir === 'up') overlayRef.current?.dismiss(); }}
+          onActionPreview={(dir) => {
+            if (dir === 'up') setShowCreate(true);
+            if (dir === 'right') setShowPicture(true);
+          }}
+          onAction={(dir) => {
+            if (dir === 'up') overlayRef.current?.focus();
+            if (dir === 'right') pictureRef.current?.shoot();
+          }}
+          onActionCancel={(dir) => {
+            if (dir === 'up') overlayRef.current?.dismiss();
+            if (dir === 'right') pictureRef.current?.dismiss();
+          }}
         />
       </View>
 
@@ -38,6 +50,13 @@ export default function HomeScreen() {
           ref={overlayRef}
           onDismiss={() => setShowCreate(false)}
           onCreated={() => { setShowCreate(false); refresh(); }}
+        />
+      )}
+      {showPicture && (
+        <CreatePictureOverlay
+          ref={pictureRef}
+          onDismiss={() => setShowPicture(false)}
+          onCreated={() => { setShowPicture(false); refresh(); }}
         />
       )}
     </ThemedView>
