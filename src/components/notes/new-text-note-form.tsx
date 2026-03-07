@@ -25,9 +25,13 @@ function NewTextNoteForm({ onDismiss, onCreated }, ref) {
   async function handleSave() {
     if (!text.trim() || saving) return;
     setSaving(true);
-    const db = await getDatabase();
-    await createNote(db, { type: 'text', text: text.trim() });
-    onCreated();
+    try {
+      const db = await getDatabase();
+      await createNote(db, { type: 'text', text: text.trim() });
+      onCreated();
+    } catch {
+      setSaving(false);
+    }
   }
 
   useImperativeHandle(ref, () => ({

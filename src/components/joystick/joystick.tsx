@@ -15,6 +15,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { useTheme } from '@/hooks/use-theme';
 
 import { Direction, DirectionConfig, JoystickMenuItem } from './joystick-menu-item';
+import { SPRING_SNAP, SPRING_RETURN } from './spring-configs';
 
 const OUTER_SIZE = 88;
 const INNER_SIZE = 46;
@@ -34,8 +35,6 @@ const DIRECTIONS: DirectionConfig[] = [
   { id: 'down',  label: 'Settings',emoji: '⚙️', color: '#F15BB5', offsetX: 0,           offsetY: MENU_RADIUS,  angle: 90  },
 ];
 
-const springConfig = { damping: 22, stiffness: 500, mass: 0.5 };
-const returnSpring = { damping: 20, stiffness: 300, mass: 0.5 };
 
 function getActiveDirection(tx: number, ty: number): Direction | null {
   'worklet';
@@ -55,7 +54,7 @@ type ConnectorLineProps = {
 
 function ConnectorLine({ dir, activeDirection }: ConnectorLineProps) {
   const lineStyle = useAnimatedStyle(() => ({
-    opacity: withSpring(activeDirection.value === dir.id ? 1 : 0, springConfig),
+    opacity: withSpring(activeDirection.value === dir.id ? 1 : 0, SPRING_SNAP),
     backgroundColor: dir.color,
   }));
 
@@ -133,8 +132,8 @@ export function Joystick({ onAction, onActionPreview, onActionCancel }: Joystick
       const previewing = previewActiveDirection.value;
       previewActiveDirection.value = null;
       isOpen.value = false;
-      translationX.value = withSpring(0, returnSpring);
-      translationY.value = withSpring(0, returnSpring);
+      translationX.value = withSpring(0, SPRING_RETURN);
+      translationY.value = withSpring(0, SPRING_RETURN);
       if (dir !== null && onAction) {
         scheduleOnRN(onAction, dir);
       } else if (previewing !== null && onActionCancel) {
@@ -146,7 +145,7 @@ export function Joystick({ onAction, onActionPreview, onActionCancel }: Joystick
     borderColor: theme.backgroundSelected,
     backgroundColor: theme.backgroundElement,
     shadowColor: theme.text,
-    shadowOpacity: withSpring(isOpen.value ? 0.18 : 0, springConfig),
+    shadowOpacity: withSpring(isOpen.value ? 0.18 : 0, SPRING_SNAP),
     shadowRadius: 20,
   }));
 
@@ -158,12 +157,12 @@ export function Joystick({ onAction, onActionPreview, onActionCancel }: Joystick
       transform: [
         { translateX: dx },
         { translateY: dy },
-        { scale: withSpring(isOpen.value ? 1.15 : 1, springConfig) },
+        { scale: withSpring(isOpen.value ? 1.15 : 1, SPRING_SNAP) },
       ],
       shadowOffset: { width: dx * 0.4, height: dy * 0.4 },
-      shadowOpacity: withSpring(isOpen.value ? 0.45 : 0, springConfig),
-      shadowRadius: withSpring(isOpen.value ? 12 : 4, springConfig),
-      elevation: withSpring(isOpen.value ? 12 : 3, springConfig),
+      shadowOpacity: withSpring(isOpen.value ? 0.45 : 0, SPRING_SNAP),
+      shadowRadius: withSpring(isOpen.value ? 12 : 4, SPRING_SNAP),
+      elevation: withSpring(isOpen.value ? 12 : 3, SPRING_SNAP),
     };
   });
 

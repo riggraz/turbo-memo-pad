@@ -8,6 +8,8 @@ import Animated, {
 
 import { useTheme } from '@/hooks/use-theme';
 
+import { SPRING_SNAP, SPRING_OPEN } from './spring-configs';
+
 export type Direction = 'up' | 'left' | 'right' | 'down';
 
 export type DirectionConfig = {
@@ -28,12 +30,7 @@ type Props = {
   activeDirection: DerivedValue<Direction | null>;
 };
 
-const springConfig = { damping: 22, stiffness: 500, mass: 0.5 };
-const openSpring = { damping: 16, stiffness: 500, mass: 0.5 };
-
-function getLabelPosition(_id: Direction, _itemSize: number): object {
-  return { top: -24, left: '50%', transform: [{ translateX: -36 }], width: 72, textAlign: 'center' as const };
-}
+const LABEL_POSITION = { top: -24, left: '50%' as const, transform: [{ translateX: -36 }], width: 72, textAlign: 'center' as const };
 
 export function JoystickMenuItem({ dir, itemBase, itemSize, isOpen, activeDirection }: Props) {
   const theme = useTheme();
@@ -42,11 +39,11 @@ export function JoystickMenuItem({ dir, itemBase, itemSize, isOpen, activeDirect
     const open = isOpen.value;
     const isActive = activeDirection.value === dir.id;
     return {
-      opacity: withSpring(open ? 1 : 0, springConfig),
+      opacity: withSpring(open ? 1 : 0, SPRING_SNAP),
       transform: [
-        { translateX: withSpring(open ? dir.offsetX : 0, open ? openSpring : springConfig) },
-        { translateY: withSpring(open ? dir.offsetY : 0, open ? openSpring : springConfig) },
-        { scale: withSpring(isActive ? 1.5 : open ? 1 : 0.1, springConfig) },
+        { translateX: withSpring(open ? dir.offsetX : 0, open ? SPRING_OPEN : SPRING_SNAP) },
+        { translateY: withSpring(open ? dir.offsetY : 0, open ? SPRING_OPEN : SPRING_SNAP) },
+        { scale: withSpring(isActive ? 1.5 : open ? 1 : 0.1, SPRING_SNAP) },
       ],
       backgroundColor: isActive ? dir.color : theme.backgroundElement,
       borderColor: isActive ? dir.color : theme.backgroundSelected,
@@ -72,7 +69,7 @@ export function JoystickMenuItem({ dir, itemBase, itemSize, isOpen, activeDirect
       <Animated.Text
         style={[
           styles.label,
-          { position: 'absolute', ...getLabelPosition(dir.id, itemSize) },
+          { position: 'absolute', ...LABEL_POSITION },
           labelStyle,
         ]}>
         {dir.label}
